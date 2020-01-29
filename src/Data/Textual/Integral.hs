@@ -303,7 +303,7 @@ nncUpTo s n = (<?> systemName s ++ " digits") $ digitIn s >>= \case
 -- | Parse a non-negative number written in the specified positional
 --   numeral system, failing on overflow.
 nnBounded ∷ (PositionalSystem s, Ord α, Bounded α, Integral α,
-             Monad μ, CharParsing μ) ⇒ s → μ α
+             MonadFail μ, CharParsing μ) ⇒ s → μ α
 nnBounded s = digit >>= go <?> systemName s ++ " digits"
   where (q, r) = quotRem maxBound radix
         go !n  = optional digit >>= \case
@@ -313,27 +313,27 @@ nnBounded s = digit >>= go <?> systemName s ++ " digits"
                    Nothing → return n
         radix  = radixIn s
         digit  = digitIn s
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int #-}
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int8 #-}
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int16 #-}
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int32 #-}
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int64 #-}
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word #-}
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word8 #-}
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word16 #-}
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word32 #-}
-{-# SPECIALIZE nnBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word64 #-}
-{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ Binary → μ α #-}
-{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ Octal → μ α #-}
-{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ Decimal → μ α #-}
-{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ Hexadecimal → μ α #-}
-{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ LowHex → μ α #-}
-{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ UpHex → μ α #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int8 #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int16 #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int32 #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int64 #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word8 #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word16 #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word32 #-}
+{-# SPECIALIZE nnBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word64 #-}
+{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ Binary → μ α #-}
+{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ Octal → μ α #-}
+{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ Decimal → μ α #-}
+{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ Hexadecimal → μ α #-}
+{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ LowHex → μ α #-}
+{-# SPECIALIZE nnBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ UpHex → μ α #-}
 
 -- | Parse a non-negative number written in the specified positional
 --   numeral system, failing on overflow. Leading zeroes are not allowed.
 nncBounded ∷ (PositionalSystem s, Ord α, Bounded α, Integral α,
-              Monad μ, CharParsing μ) ⇒ s → μ α
+              MonadFail μ, CharParsing μ) ⇒ s → μ α
 nncBounded s = (<?> systemName s ++ " digits") $ digit >>= \case
                  0 → optional (PC.satisfy $ isDigitIn s) >>= \case
                        Just _  → PC.unexpected "leading zero"
@@ -347,22 +347,22 @@ nncBounded s = (<?> systemName s ++ " digits") $ digit >>= \case
                    Nothing → return n
         radix  = radixIn s
         digit  = digitIn s
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int #-}
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int8 #-}
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int16 #-}
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int32 #-}
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Int64 #-}
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word #-}
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word8 #-}
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word16 #-}
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word32 #-}
-{-# SPECIALIZE nncBounded ∷ (Monad μ, CharParsing μ) ⇒ Decimal → μ Word64 #-}
-{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ Binary → μ α #-}
-{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ Octal → μ α #-}
-{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ Decimal → μ α #-}
-{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ Hexadecimal → μ α #-}
-{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ LowHex → μ α #-}
-{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, Monad μ, CharParsing μ) ⇒ UpHex → μ α #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int8 #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int16 #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int32 #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Int64 #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word8 #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word16 #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word32 #-}
+{-# SPECIALIZE nncBounded ∷ (MonadFail μ, CharParsing μ) ⇒ Decimal → μ Word64 #-}
+{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ Binary → μ α #-}
+{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ Octal → μ α #-}
+{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ Decimal → μ α #-}
+{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ Hexadecimal → μ α #-}
+{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ LowHex → μ α #-}
+{-# SPECIALIZE nncBounded ∷ (Bounded α, Integral α, MonadFail μ, CharParsing μ) ⇒ UpHex → μ α #-}
 
 -- | Parse a non-negative binary number written in the specified
 --   positional numeral system.
@@ -435,7 +435,7 @@ nncBits ∷ (BitSystem s, Num α, Bits α, Monad μ, CharParsing μ) ⇒ s → �
 nncBits s = (<?> systemName s ++ " digits") $ digit >>= \case
               0 → optional (PC.satisfy $ isDigitIn s) >>= \case
                     Just _  → PC.unexpected "leading zero"
-                    Nothing → return 0 
+                    Nothing → return 0
               r → go r
   where go !r     = optional digit >>= \case
                       Just d  → go ((r `shiftL` digitBits) .|. d)
@@ -577,7 +577,7 @@ nncBitsUpTo _ n | n <= 0 = empty
 nncBitsUpTo s n = (<?> systemName s ++ " digits") $ digitIn s >>= \case
                     0 → optional (PC.satisfy $ isDigitIn s) >>= \case
                           Just _  → PC.unexpected "leading zero"
-                          Nothing → return 0 
+                          Nothing → return 0
                     r → go (n - 1) $ fromIntegral (r ∷ Word)
   where go 0 !r   = optional (PC.satisfy $ isDigitIn s) >>= \case
                       Just _  → moreThan n
@@ -1516,7 +1516,7 @@ compactUpTo = compactUpTo' optMinus
 --   failing on overflow. The supplied parser is used to determine the sign
 --   of the number.
 bounded' ∷ (PositionalSystem s, Ord α, Bounded α, Integral α,
-            Monad μ, CharParsing μ)
+            MonadFail μ, CharParsing μ)
          ⇒ μ Sign → s → μ α
 bounded' neg s = (<?> systemName s) $ neg >>= \case
   NonNegative → nnBounded s
@@ -1525,7 +1525,7 @@ bounded' neg s = (<?> systemName s) $ neg >>= \case
 
 -- | A shorthand for 'bounded'' 'optMinus'.
 bounded ∷ (PositionalSystem s, Ord α, Bounded α, Integral α,
-           Monad μ, CharParsing μ) ⇒ s → μ α
+           MonadFail μ, CharParsing μ) ⇒ s → μ α
 bounded = bounded' optMinus
 {-# INLINE bounded #-}
 
@@ -1533,7 +1533,7 @@ bounded = bounded' optMinus
 --   failing on overflow. The supplied parser is used to determine the sign
 --   of the number. Leading zeroes are not allowed.
 cBounded' ∷ (PositionalSystem s, Ord α, Bounded α, Integral α,
-             Monad μ, CharParsing μ)
+             MonadFail μ, CharParsing μ)
           ⇒ μ Sign → s → μ α
 cBounded' neg s = (<?> systemName s) $ neg >>= \case
   NonNegative → nncBounded s
@@ -1542,7 +1542,7 @@ cBounded' neg s = (<?> systemName s) $ neg >>= \case
 
 -- | A shorthand for 'cBounded'' 'optMinus'.
 cBounded ∷ (PositionalSystem s, Ord α, Bounded α, Integral α,
-            Monad μ, CharParsing μ) ⇒ s → μ α
+            MonadFail μ, CharParsing μ) ⇒ s → μ α
 cBounded = cBounded' optMinus
 {-# INLINE cBounded #-}
 
@@ -1645,4 +1645,3 @@ cbBits ∷ (BitSystem s, Ord α, Bounded α, Num α, Bits α,
        ⇒ s → μ α
 cbBits = cbBits' optMinus
 {-# INLINE cbBits #-}
-

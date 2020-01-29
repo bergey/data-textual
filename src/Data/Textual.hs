@@ -214,7 +214,7 @@ toLazyUtf8 = TP.buildLazyUtf8 . print
 --     'fromString' ('toString' /x/) = 'Just' /x/
 --   @
 class Printable α ⇒ Textual α where
-  textual ∷ (Monad μ, CharParsing μ) ⇒ μ α
+  textual ∷ (MonadFail μ, CharParsing μ) ⇒ μ α
 
 instance Textual Char where
   textual = PC.anyChar
@@ -324,7 +324,7 @@ instance Applicative Parser where
   pure a = Parser $ \ls n i c _ → c ls n i a
   {-# INLINE pure #-}
   p <*> p' = Parser $ \ls n i c h →
-               runParser p ls n i 
+               runParser p ls n i
                  (\ls' n' i' f →
                     runParser p' ls' n' i'
                       (\ls'' n'' i'' a → c ls'' n'' i'' (f a)) h)
@@ -345,7 +345,7 @@ instance Alternative Parser where
   empty = PC.unexpected "Alternative.empty"
   {-# INLINE empty #-}
   p <|> p' = Parser $ \ls n i c h →
-               runParser p ls n i c $ \ls' n' i' e → 
+               runParser p ls n i c $ \ls' n' i' e →
                  if n' == n then runParser p' ls n' i' c h
                             else h ls' n' i' e
   {-# INLINE (<|>) #-}
@@ -396,10 +396,11 @@ instance Monad Parser where
   {-# INLINE (>>=) #-}
   (>>) = (*>)
   {-# INLINE (>>) #-}
-#if !MIN_VERSION_base(4,13,0)
+#if MIN_VERSION_base(4,13,0)
+instance MonadFail Parser where
+#endif
   fail = PC.unexpected
   {-# INLINE fail #-}
-#endif
 
 parse ∷ Parser α → String → Parsed α
 parse p i = runParser p [] 0 i (\_  _ _ a → Parsed a)

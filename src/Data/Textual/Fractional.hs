@@ -85,7 +85,7 @@ hexExpSign = optional (PC.oneOf "pP") >>= \case
                Just _  → Just <$> optSign
 
 -- | /s/-fraction parser.
-fractional' ∷ (PositionalSystem s, Fractional α, Monad μ, CharParsing μ)
+fractional' ∷ (PositionalSystem s, Fractional α, MonadFail μ, CharParsing μ)
             ⇒ μ Sign -- ^ Sign parser.
             → s
             → Optional -- ^ Whether the integer part is optional.
@@ -108,7 +108,7 @@ fractional' neg s ip dot eneg = (<?> (systemName s ++ "-fraction")) $ do
         then do
           let go !ds !f = optional digit >>= \case
                             Just d  → go (ds + 1) (f * radix + d)
-                            Nothing → return (f, ds) 
+                            Nothing → return (f, ds)
           digit >>= go (1 ∷ Int) <?> "fractional part"
         else
           return (0, 0)
@@ -128,11 +128,11 @@ fractional' neg s ip dot eneg = (<?> (systemName s ++ "-fraction")) $ do
                            + i % radix ^ negate e₁
           NonPositive → fromRational
                       $ i % (radix ^ e) + f % radix ^ (fDigits + e)
-  where 
+  where
     radix = radixIn s
     digit = digitIn s
 
 -- | Decimal fraction parser.
-fractional ∷ (Monad μ, Fractional α, CharParsing μ) ⇒ μ α
+fractional ∷ (MonadFail μ, Fractional α, CharParsing μ) ⇒ μ α
 fractional = fractional' optMinus Decimal Required
                          (PC.char '.' *> pure ()) decExpSign
